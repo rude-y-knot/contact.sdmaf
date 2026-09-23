@@ -501,23 +501,6 @@ export default function App() {
         {/* Soft background ambient accent */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#70B84F]/10 rounded-full blur-[140px] pointer-events-none"></div>
         
-        {/* Top return link */}
-        <div className="w-full max-w-md mb-4 flex justify-between items-center">
-          <button
-            onClick={() => {
-              window.history.pushState(null, '', window.location.pathname);
-              setStandaloneEmployee(null);
-            }}
-            className="flex items-center gap-1.5 text-xs font-semibold text-[#42444A] hover:text-[#70B84F] bg-white/80 hover:bg-white px-3 py-1.5 rounded-lg border border-[#42444A]/10 shadow-2xs transition-all cursor-pointer"
-          >
-            <ArrowLeft size={14} />
-            <span>Все визитки компании</span>
-          </button>
-          <div className="text-[10px] text-[#42444A]/60 font-mono font-semibold uppercase tracking-wider">
-            {COMPANY_NAME}
-          </div>
-        </div>
-        
         <CardView 
           employee={standaloneEmployee} 
           onDownloadVCF={downloadVCF}
