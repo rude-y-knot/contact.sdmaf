@@ -268,18 +268,18 @@ export default function App() {
   
   // Persistent localStorage initialization with updated base table
   const [employees, setEmployees] = useState<Employee[]>(() => {
-    const cached = localStorage.getItem('stalnoe_employees_v5');
+    const cached = localStorage.getItem('stalnoe_employees_v6');
     return cached ? JSON.parse(cached) : INITIAL_SHEET_DATA;
   });
 
   const [sheetRows, setSheetRows] = useState<Employee[]>(() => {
-    const cached = localStorage.getItem('stalnoe_sheet_rows_v5');
+    const cached = localStorage.getItem('stalnoe_sheet_rows_v6');
     return cached ? JSON.parse(cached) : INITIAL_SHEET_DATA;
   });
 
   const DEFAULT_GOOGLE_SHEET_URL = '';
   const [googleSheetUrl, setGoogleSheetUrl] = useState<string>(() => {
-    return localStorage.getItem('stalnoe_sheet_url_v5') || DEFAULT_GOOGLE_SHEET_URL;
+    return localStorage.getItem('stalnoe_sheet_url_v6') || DEFAULT_GOOGLE_SHEET_URL;
   });
 
   const [isSyncingSheet, setIsSyncingSheet] = useState<boolean>(false);
@@ -328,15 +328,15 @@ export default function App() {
 
   // Persist sheet rows and employees
   useEffect(() => {
-    localStorage.setItem('stalnoe_sheet_rows_v5', JSON.stringify(sheetRows));
+    localStorage.setItem('stalnoe_sheet_rows_v6', JSON.stringify(sheetRows));
   }, [sheetRows]);
 
   useEffect(() => {
-    localStorage.setItem('stalnoe_employees_v5', JSON.stringify(employees));
+    localStorage.setItem('stalnoe_employees_v6', JSON.stringify(employees));
   }, [employees]);
 
   useEffect(() => {
-    localStorage.setItem('stalnoe_sheet_url_v5', googleSheetUrl);
+    localStorage.setItem('stalnoe_sheet_url_v6', googleSheetUrl);
   }, [googleSheetUrl]);
 
   // Google Sheet fetch handler
