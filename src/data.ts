@@ -61,6 +61,34 @@ export const INITIAL_SHEET_DATA: Employee[] = [
     telegram: '', 
     whatsapp: '79119597956',
     maxMessenger: false
+  },
+  { 
+    id: 'anastasiya-gulyaeva', 
+    firstName: 'Анастасия', 
+    lastName: 'Гуляева', 
+    phone: '+79112901150', 
+    email: 'info@sdmaf.ru', 
+    title: 'Менеджер по продажам', 
+    website: 'www.sdmaf.ru', 
+    address: 'Санкт-Петербург, г. Колпино, Финлядская д. 3',
+    department: 'Продажи',
+    telegram: '', 
+    whatsapp: '79112901150',
+    maxMessenger: true
+  },
+  { 
+    id: 'sergey-seroev', 
+    firstName: 'Сергей', 
+    lastName: 'Сероев', 
+    phone: '+79217636571', 
+    email: 'info@sdmaf.ru', 
+    title: 'Главный конструктор', 
+    website: 'www.sdmaf.ru', 
+    address: 'Санкт-Петербург, г. Колпино, Финлядская д. 3',
+    department: 'Проектирование',
+    telegram: '', 
+    whatsapp: '79217636571',
+    maxMessenger: true
   }
 ];
 

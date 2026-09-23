@@ -147,9 +147,9 @@ export default function SheetEditor({
               <FileSpreadsheet className="text-[#70B84F]" size={20} />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[#42444A]">Встроенная таблица данных (Google Sheets)</h3>
+              <h3 className="text-sm font-bold text-[#42444A]">Источник данных (База визиток)</h3>
               <p className="text-xs text-[#42444A]/70 mt-0.5">
-                База контактов сотрудников компании «{COMPANY_NAME}». Автообновление каждый час.
+                База контактов сотрудников компании «{COMPANY_NAME}» ({sheetRows.length} чел.). Вы можете редактировать данные в таблице ниже или подключить новую Google Таблицу.
               </p>
             </div>
           </div>
@@ -160,18 +160,19 @@ export default function SheetEditor({
             <input
               type="text"
               value={googleSheetUrl}
-              readOnly
-              className="w-full bg-white border border-[#42444A]/15 rounded-xl py-2.5 pl-10 pr-3.5 text-xs text-[#42444A]/80 font-mono focus:outline-none cursor-not-allowed selection:bg-transparent shadow-2xs"
+              onChange={(e) => setGoogleSheetUrl(e.target.value)}
+              placeholder="Вставьте ссылку на новую опубликованную Google Таблицу (CSV) или оставьте пустым"
+              className="w-full bg-white border border-[#42444A]/15 rounded-xl py-2.5 pl-10 pr-3.5 text-xs text-[#42444A] placeholder-[#42444A]/40 font-mono focus:outline-none focus:border-[#70B84F] focus:ring-1 focus:ring-[#70B84F] shadow-2xs"
             />
             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#42444A]/50">
-              <Lock size={14} className="text-[#70B84F]" />
+              <FileSpreadsheet size={14} className="text-[#70B84F]" />
             </div>
           </div>
           <div className="lg:col-span-3">
             <button
               onClick={() => onFetchFromGoogleSheet(googleSheetUrl)}
-              disabled={isSyncingSheet || !googleSheetUrl}
-              className="w-full bg-[#42444A] hover:bg-[#70B84F] disabled:bg-[#42444A]/40 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-95"
+              disabled={isSyncingSheet || !googleSheetUrl.trim()}
+              className="w-full bg-[#42444A] hover:bg-[#70B84F] disabled:bg-[#42444A]/30 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-95"
             >
               {isSyncingSheet ? (
                 <>
@@ -181,37 +182,12 @@ export default function SheetEditor({
               ) : (
                 <>
                   <RefreshCw size={13} />
-                  <span>Обновить данные</span>
+                  <span>Подключить таблицу</span>
                 </>
               )}
             </button>
           </div>
         </div>
-
-        {/* Instructions Accordion */}
-        <details className="group border-t border-[#42444A]/10 pt-3">
-          <summary className="text-xs text-[#42444A]/80 hover:text-[#70B84F] transition-colors cursor-pointer select-none list-none flex items-center gap-1.5 font-medium">
-            <span className="transition-transform group-open:rotate-90">▶</span>
-            <span>Информация о подключенной таблице</span>
-          </summary>
-          <div className="mt-2.5 bg-white p-3.5 rounded-xl border border-[#42444A]/10 space-y-2.5 text-xs text-[#42444A]/80 leading-relaxed shadow-2xs">
-            <p className="font-semibold text-[#42444A]">Данное приложение интегрировано со следующей таблицей:</p>
-            <div className="p-2.5 bg-[#E9E9E9]/50 rounded-lg border border-[#42444A]/10 font-mono text-[#42444A] break-all select-all flex justify-between items-center gap-2 text-[11px]">
-              <span className="truncate">{googleSheetUrl}</span>
-              <a 
-                href="https://docs.google.com/spreadsheets/d/1-e-2PACX-1vSSZtMIlBpnLHjK5t8gk78LCEkkmW056i93xMB6CfqG9AsI47Yngm2KDw5mzYGNYXnzOYSBAwK4me0g/edit" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-[#70B84F] hover:underline font-bold text-[11px] uppercase tracking-wider shrink-0"
-              >
-                Открыть таблицу ↗
-              </a>
-            </div>
-            <p>
-              Колонки в таблице: <strong className="text-[#42444A]">Имя, Фамилия, Телефон, почта, Должность, Департамент, Сайт компании, Адрес компании, МАКС</strong>.
-            </p>
-          </div>
-        </details>
       </div>
 
       {/* CSV Paste Importer Box */}

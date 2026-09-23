@@ -268,18 +268,18 @@ export default function App() {
   
   // Persistent localStorage initialization with updated base table
   const [employees, setEmployees] = useState<Employee[]>(() => {
-    const cached = localStorage.getItem('stalnoe_employees_v4');
+    const cached = localStorage.getItem('stalnoe_employees_v5');
     return cached ? JSON.parse(cached) : INITIAL_SHEET_DATA;
   });
 
   const [sheetRows, setSheetRows] = useState<Employee[]>(() => {
-    const cached = localStorage.getItem('stalnoe_sheet_rows_v4');
+    const cached = localStorage.getItem('stalnoe_sheet_rows_v5');
     return cached ? JSON.parse(cached) : INITIAL_SHEET_DATA;
   });
 
-  const DEFAULT_GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSSZtMIlBpnLHjK5t8gk78LCEkkmW056i93xMB6CfqG9AsI47Yngm2KDw5mzYGNYXnzOYSBAwK4me0g/pub?output=csv';
+  const DEFAULT_GOOGLE_SHEET_URL = '';
   const [googleSheetUrl, setGoogleSheetUrl] = useState<string>(() => {
-    return localStorage.getItem('stalnoe_sheet_url') || DEFAULT_GOOGLE_SHEET_URL;
+    return localStorage.getItem('stalnoe_sheet_url_v5') || DEFAULT_GOOGLE_SHEET_URL;
   });
 
   const [isSyncingSheet, setIsSyncingSheet] = useState<boolean>(false);
@@ -328,19 +328,23 @@ export default function App() {
 
   // Persist sheet rows and employees
   useEffect(() => {
-    localStorage.setItem('stalnoe_sheet_rows_v4', JSON.stringify(sheetRows));
+    localStorage.setItem('stalnoe_sheet_rows_v5', JSON.stringify(sheetRows));
   }, [sheetRows]);
 
   useEffect(() => {
-    localStorage.setItem('stalnoe_employees_v4', JSON.stringify(employees));
+    localStorage.setItem('stalnoe_employees_v5', JSON.stringify(employees));
   }, [employees]);
 
   useEffect(() => {
-    localStorage.setItem('stalnoe_sheet_url', googleSheetUrl);
+    localStorage.setItem('stalnoe_sheet_url_v5', googleSheetUrl);
   }, [googleSheetUrl]);
 
   // Google Sheet fetch handler
   const handleFetchFromGoogleSheet = async (urlStr: string = googleSheetUrl) => {
+    if (!urlStr.trim()) {
+      showToast('⚠️ Введите корректную ссылку на Google Таблицу');
+      return;
+    }
     setIsSyncingSheet(true);
     try {
       const data = await fetchGoogleSheetData(urlStr);
@@ -364,6 +368,10 @@ export default function App() {
 
   // Manual Trigger for sync
   const triggerManualSync = async () => {
+    if (!googleSheetUrl.trim()) {
+      showToast('ℹ️ Внешняя Google Таблица не подключена. Используются актуальные данные приложения.');
+      return;
+    }
     setIsSyncing(true);
     try {
       const data = await fetchGoogleSheetData(googleSheetUrl);
