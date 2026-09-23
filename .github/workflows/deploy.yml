@@ -20,21 +20,41 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
-            echo "🚀 Начало автоматического деплоя на contact.sdmaf.ru..."
+            set -e
+            
+            # Подгружаем профиль и пути к Node/NPM для неинтерактивной SSH-сессии
+            export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$HOME/.nvm/versions/node/$(ls $HOME/.nvm/versions/node 2>/dev/null | tail -n 1)/bin:$PATH"
+            [ -s "$HOME/.profile" ] && source "$HOME/.profile" || true
+            [ -s "$HOME/.bashrc" ] && source "$HOME/.bashrc" || true
+            [ -s "$HOME/.nvm/nvm.sh" ] && source "$HOME/.nvm/nvm.sh" || true
+            
+            echo "🚀 [1/5] Начало автоматического деплоя на contact.sdmaf.ru..."
+            echo "📌 Используется Node: $(node -v 2>/dev/null || echo 'not found') | NPM: $(npm -v 2>/dev/null || echo 'not found')"
             
             # Переходим в директорию проекта
             cd /var/www/contact.sdmaf.ru
             
-            # Получаем свежие коммиты
+            echo "📥 [2/5] Получение свежего кода из репозитория..."
             git fetch --all
-            git reset --hard origin/main || git reset --hard origin/master
+            # Определяем текущую ветку (main или master)
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+            if git show-ref --verify --quiet "refs/remotes/origin/main"; then
+              git reset --hard origin/main
+            elif git show-ref --verify --quiet "refs/remotes/origin/master"; then
+              git reset --hard origin/master
+            else
+              git reset --hard "origin/$CURRENT_BRANCH"
+            fi
             
-            # Устанавливаем зависимости и собираем проект
-            npm install
+            echo "📦 [3/5] Установка зависимостей..."
+            npm install --production=false
+            
+            echo "⚙️ [4/5] Компиляция продакшн-сборки (Vite)..."
             npm run build
             
-            # Обновляем права для веб-сервера Nginx
+            echo "🔒 [5/5] Применение прав доступа..."
             chown -R www-data:www-data /var/www/contact.sdmaf.ru/dist
             chmod -R 755 /var/www/contact.sdmaf.ru/dist
             
-            echo "🎉 Деплой успешно завершен! Сайт contact.sdmaf.ru обновлен."
+            echo "🎉 Деплой успешно завершен! Сайт contact.sdmaf.ru обновлен: $(date)"
+
