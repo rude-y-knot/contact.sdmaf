@@ -35,6 +35,8 @@ jobs:
             cd /var/www/contact.sdmaf.ru
             
             echo "📥 [2/5] Получение свежего кода из репозитория..."
+            # Разрешаем Git работать с директорией при смене владельца
+            git config --global --add safe.directory /var/www/contact.sdmaf.ru || true
             git fetch --all
             # Определяем текущую ветку (main или master)
             CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
