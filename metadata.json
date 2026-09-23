@@ -1,0 +1,8 @@
+{
+  "name": "Стальное дело — Визитки",
+  "description": "Электронные визитные карточки сотрудников компании «Стальное дело» с автосинхронизацией из Google Sheets и экспортом vCard контактов.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

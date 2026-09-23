@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "IBM Plex Sans", sans-serif;
+  --color-bg: #E9E9E9;
+  --color-accent: #70B84F;
+  --color-accent-hover: #5ea33f;
+  --color-brand-dark: #42444A;
+  --color-brand-text: #42444A;
+}
+
+@layer base {
+  body {
+    background-color: #E9E9E9;
+    font-family: "IBM Plex Sans", sans-serif;
+    color: #42444A;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "IBM Plex Sans", sans-serif;
+    letter-spacing: -0.015em;
+    color: #42444A;
+  }
+}
+
+/* Steel Deal Branding Utility Styles */
+.bg-canvas {
+  background-color: #E9E9E9;
+}
+
+.text-brand-dark {
+  color: #42444A;
+}
+
+.bg-brand-dark {
+  background-color: #42444A;
+}
+
+.border-brand-dark {
+  border-color: #42444A;
+}
+
+.text-accent-green {
+  color: #70B84F;
+}
+
+.bg-accent-green {
+  background-color: #70B84F;
+}
+
+.border-accent-green {
+  border-color: #70B84F;
+}
+
+/* Primary Button Style: #42444A default, #70B84F on hover */
+.btn-primary {
+  background-color: #42444A;
+  color: #FFFFFF;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #70B84F;
+  color: #FFFFFF;
+}
+
+/* Secondary Button Style */
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: #42444A;
+  border: 1px solid rgba(66, 68, 74, 0.15);
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: #70B84F;
+  color: #70B84F;
+  background-color: #FFFFFF;
+}
+
+/* Glass & Card Styles */
+.steel-nav {
+  border-bottom: 1px solid rgba(66, 68, 74, 0.12);
+  background-color: rgba(233, 233, 233, 0.88);
+  backdrop-filter: blur(20px);
+}
+
+.steel-card {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(66, 68, 74, 0.1);
+  box-shadow: 0 4px 20px -2px rgba(66, 68, 74, 0.06), 0 2px 6px -1px rgba(66, 68, 74, 0.04);
+}
+
+/* Refined custom scrollbar matching light steel palette */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #E9E9E9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C4C4C8;
+  border-radius: 9999px;
+  transition: background 0.15s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #70B84F;
+}

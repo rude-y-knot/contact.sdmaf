@@ -1,0 +1,7 @@
+services:
+  magma-vizitki:
+    image: ghcr.io/rude-y-knot/visitcards:latest
+    container_name: magma_vizitki_app
+    ports:
+      - "1488:80"
+    restart: always
