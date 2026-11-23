@@ -82,9 +82,15 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
           <div>
             {/* Top Logo Mark */}
             <div className="flex flex-col items-center mb-6">
-              <div className="h-9 flex items-center">
+              <a 
+                href="https://www.sdmaf.ru/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="Перейти на сайт www.sdmaf.ru"
+                className="h-9 flex items-center transition-transform hover:scale-105 cursor-pointer"
+              >
                 <Logo className="h-8 w-auto" />
-              </div>
+              </a>
               <div className="h-[2px] w-12 bg-[#70B84F] mt-3 rounded-full"></div>
             </div>
 
