@@ -29,8 +29,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build production bundle
-        run: npm run build
+      - name: Build frontend and server bundles
+        run: |
+          npm run build
+          npm run build:server
 
       - name: Check deployment secrets
         id: secrets_check
@@ -46,7 +48,7 @@ jobs:
             echo "ready=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Deploy dist atomically to Beget VPS
+      - name: Deploy frontend + API server atomically to Beget VPS
         if: steps.secrets_check.outputs.ready == 'true'
         env:
           BEGET_HOST: ${{ secrets.BEGET_HOST }}
@@ -69,28 +71,64 @@ jobs:
           SSH_OPTS="-i ~/.ssh/beget_deploy_key -p $PORT -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
           SCP_OPTS="-i ~/.ssh/beget_deploy_key -P $PORT -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
 
-          # Упаковка собранного dist/
-          tar -czf dist.tar.gz -C dist .
+          # Упаковка собранного фронтенда, серверного бандла и манифестов зависимостей
+          tar -czf release.tar.gz dist dist-server package.json package-lock.json
 
           # Создание целевой директории и загрузка архива
           ssh $SSH_OPTS "${BEGET_USERNAME}@${BEGET_HOST}" "mkdir -p '${TARGET_DIR}'"
-          scp $SCP_OPTS dist.tar.gz "${BEGET_USERNAME}@${BEGET_HOST}:${TARGET_DIR}/dist.tar.gz"
+          scp $SCP_OPTS release.tar.gz "${BEGET_USERNAME}@${BEGET_HOST}:${TARGET_DIR}/release.tar.gz"
 
-          # Атомарная подмена dist_new -> dist без даунтайма
+          # Атомарное обновление статики + API (SQLite БД в /var/lib/contact-sdmaf/ не затрагивается)
           ssh $SSH_OPTS "${BEGET_USERNAME}@${BEGET_HOST}" "bash -s" << 'EOF'
             set -euo pipefail
+            export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+            [ -s "$HOME/.nvm/nvm.sh" ] && source "$HOME/.nvm/nvm.sh" || true
+
             TARGET_DIR="/var/www/contact.sdmaf.ru"
+            STAGE_DIR="${TARGET_DIR}/_stage"
 
-            rm -rf "${TARGET_DIR}/dist_new" "${TARGET_DIR}/dist_old"
-            mkdir -p "${TARGET_DIR}/dist_new"
-            tar -xzf "${TARGET_DIR}/dist.tar.gz" -C "${TARGET_DIR}/dist_new"
-            chmod -R a+rX "${TARGET_DIR}/dist_new"
+            rm -rf "${STAGE_DIR}" "${TARGET_DIR}/dist_old" "${TARGET_DIR}/dist-server_old"
+            mkdir -p "${STAGE_DIR}"
+            tar -xzf "${TARGET_DIR}/release.tar.gz" -C "${STAGE_DIR}"
+            chmod -R a+rX "${STAGE_DIR}/dist"
 
+            # Проверяем, изменился ли package-lock.json, чтобы не гонять npm ci без нужды
+            NEW_LOCK_HASH=$(sha256sum "${STAGE_DIR}/package-lock.json" | awk '{print $1}')
+            OLD_LOCK_HASH=""
+            if [ -f "${TARGET_DIR}/.lock_sha256" ]; then
+              OLD_LOCK_HASH=$(cat "${TARGET_DIR}/.lock_sha256")
+            fi
+
+            cp "${STAGE_DIR}/package.json" "${TARGET_DIR}/package.json"
+            cp "${STAGE_DIR}/package-lock.json" "${TARGET_DIR}/package-lock.json"
+
+            if [ ! -d "${TARGET_DIR}/node_modules" ] || [ "$NEW_LOCK_HASH" != "$OLD_LOCK_HASH" ]; then
+              echo "Обновление production-зависимостей (better-sqlite3, express)..."
+              cd "${TARGET_DIR}"
+              npm ci --omit=dev
+              echo "$NEW_LOCK_HASH" > "${TARGET_DIR}/.lock_sha256"
+            fi
+
+            # Атомарная подмена dist и dist-server
             if [ -d "${TARGET_DIR}/dist" ]; then
               mv "${TARGET_DIR}/dist" "${TARGET_DIR}/dist_old"
             fi
-            mv "${TARGET_DIR}/dist_new" "${TARGET_DIR}/dist"
-            rm -rf "${TARGET_DIR}/dist_old" "${TARGET_DIR}/dist.tar.gz"
+            mv "${STAGE_DIR}/dist" "${TARGET_DIR}/dist"
+
+            if [ -d "${TARGET_DIR}/dist-server" ]; then
+              mv "${TARGET_DIR}/dist-server" "${TARGET_DIR}/dist-server_old"
+            fi
+            mv "${STAGE_DIR}/dist-server" "${TARGET_DIR}/dist-server"
+
+            rm -rf "${STAGE_DIR}" "${TARGET_DIR}/dist_old" "${TARGET_DIR}/dist-server_old" "${TARGET_DIR}/release.tar.gz"
+
+            # Мягкий перезапуск API-сервиса, если systemd-юнит уже настроен
+            if systemctl list-unit-files contact-sdmaf-api.service >/dev/null 2>&1 && systemctl is-enabled --quiet contact-sdmaf-api.service 2>/dev/null; then
+              systemctl restart contact-sdmaf-api.service
+              echo "API-сервис contact-sdmaf-api перезапущен."
+            else
+              echo "Сервис contact-sdmaf-api ещё не настроен (см. Шаг 6 инструкции)."
+            fi
           EOF
 
-          rm -f ~/.ssh/beget_deploy_key dist.tar.gz
+          rm -f ~/.ssh/beget_deploy_key release.tar.gz

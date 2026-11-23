@@ -1,7 +1,12 @@
 node_modules/
 build/
 dist/
+dist-server/
 coverage/
+data/
+*.db
+*.db-wal
+*.db-shm
 .DS_Store
 *.log
 .env*

@@ -1,4 +1,4 @@
-import { Employee } from './types';
+import type { Employee } from './types.ts';
 
 export const COMPANY_NAME = 'Стальное дело';
 export const COMPANY_PHONE = '+7 812 200-77-06';
